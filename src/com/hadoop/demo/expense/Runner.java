@@ -1,10 +1,11 @@
-package com.hadoop.demo.recharge;
+package com.hadoop.demo.expense;
 
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -13,14 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 
 /*
- * 求平均值，每年资助联通多少RMB
- * 
- * rework  
- * 
- * Q&A 
- * 1. K/V 如何传递 JavaBean 或多个值 
- * -- 自定义传输类， 实现 Writable( for value ) or WritableComparable( for key )
- * 
+ * 求平均值，每月花销
  * 
  * -----------------------
  * 测试“集群模式”
@@ -31,22 +25,26 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
  * -----------------------
  * 
  * IN:
- * Frank	18621588915	100	20150129
+ * Frank	Glinda	Joy		Joy		交通		20150101	23409
+ * Frank	Sun		Joy		Glinda	聚餐		20150102	26345
+ * Frank	Sun		Joy		Sun		把妹		20150117	65046
+
  * ......
  * 
  * -----------------------
  * OUT:
- * 手机号		姓名		年份		平均每年消费金额		
- * 18621588915	Frank	2015	103982
+ * 姓名		年月		当月消费总额		每日花销（平均值）
+ * Frank	201502	￥900			￥30
  * 
  * ----------------------
  * 
  * */
-public class PaymentTest {
-	private static final String HADOOP_ROOT= "hdfs://hadoop202-master:9000";
+public class Runner {
+//	private static final String HADOOP_ROOT= "hdfs://hadoop202-master:9000";
+	private static final String HADOOP_ROOT= "hdfs://hadoop201:9000";
 	
-	private static final String PATH_IN_STR = HADOOP_ROOT + "/dd/combine/recharge/history.log";
-	private static final String PATH_OUT_STR = HADOOP_ROOT + "/dd/combine/recharge/avg";
+	private static final String PATH_IN_STR = HADOOP_ROOT + "/dd/combine/expense/expense.log";
+	private static final String PATH_OUT_STR = HADOOP_ROOT + "/dd/combine/expense/avg";
 	
 	private static final Path PATH_IN = new Path(PATH_IN_STR);
 	private static final Path PATH_OUT = new Path(PATH_OUT_STR);
@@ -60,7 +58,7 @@ public class PaymentTest {
 			System.out.println("Delete Succ! " + PATH_OUT_STR);
 		}
 		
-		Job job = new Job(conf, PaymentTest.class.getSimpleName());
+		Job job = new Job(conf, Runner.class.getSimpleName());
 		
 		FileInputFormat.addInputPath(job, PATH_IN);
 		FileOutputFormat.setOutputPath(job, PATH_OUT);
@@ -68,12 +66,12 @@ public class PaymentTest {
 		job.setInputFormatClass(TextInputFormat.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 		
-		job.setMapperClass(PaymentMapper.class);
-		job.setCombinerClass(PaymentCombine.class);
-		job.setReducerClass(PaymentReducer.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyCombine.class);
+		job.setReducerClass(MyReducer.class);
 		
 		job.setOutputKeyClass(DetailWritable.class);
-		job.setOutputValueClass(TimesWritable.class);
+		job.setOutputValueClass(DoubleWritable.class);
 		
 		job.waitForCompletion(true);
 	}
