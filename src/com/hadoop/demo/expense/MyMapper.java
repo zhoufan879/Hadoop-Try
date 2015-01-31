@@ -20,5 +20,4 @@ public class MyMapper extends Mapper<LongWritable, Text, DetailWritable, DoubleW
 							 	new DoubleWritable(Double.parseDouble(line[6])));	// 金额	 
 		}
 	}
-
 }
