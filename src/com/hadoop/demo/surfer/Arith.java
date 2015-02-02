@@ -22,6 +22,12 @@ public class Arith {
         BigDecimal b2 = new BigDecimal(Double.toString(v2));   
         return b1.add(b2).doubleValue();   
     }   
+    public static double add(double v1,double v2,double v3){   
+        BigDecimal b1 = new BigDecimal(Double.toString(v1));   
+        BigDecimal b2 = new BigDecimal(Double.toString(v2));    
+        BigDecimal b3 = new BigDecimal(Double.toString(v3));  
+        return b1.add(b2).add(b3).doubleValue();   
+    } 
     /**  
     * 提供精确的减法运算。  
     * @param v1 被减数  
